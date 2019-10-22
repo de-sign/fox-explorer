@@ -1,0 +1,54 @@
+.fe-app-drag {
+    -webkit-app-region: drag;
+}
+
+.fe-app-no-drag {
+    -webkit-app-region: no-drag;
+}
+
+.fe-control {
+    z-index: 500;
+}
+
+.fe-loader {
+    transition: opacity 1s ease, z-index 1.5s ease;
+    z-index: -500;
+    opacity: 0;
+}
+
+.fe-loading .fe-loader {
+    z-index: 1000;
+    opacity: 1;
+}
+
+.fe-wrap header::before {
+  content: '';
+  position: absolute;
+  display: block;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #1e87f0;
+  transform-origin: bottom right;
+  transform: scaleX(0);
+  transition: transform 1s ease;
+}
+
+.fe-waiting .fe-wrap header::before {
+  transform-origin: bottom left;
+  transform: scaleX(1);
+}
+
+.uk-breadcrumb > * > :focus,
+.uk-breadcrumb > * > :hover {
+    color: #1e87f0;
+}
+
+.uk-breadcrumb > :nth-child(n+2):not(.uk-first-column)::before {
+    margin: 0 5px;
+}
+
+.uk-card {
+	cursor: pointer;
+}

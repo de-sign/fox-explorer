@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>FoxExplorer</title>
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.2.0/css/uikit.min.css" rel="stylesheet">
+		<link href="assets/css/index.css" rel="stylesheet">
+		<script src="https://kit.fontawesome.com/c4c899c4b5.js"></script>
+	</head>
+	<body class="fe-loading">
+
+		<div class="fe-loader uk-position-cover uk-background-muted uk-flex uk-flex-center uk-flex-middle">
+			<h1 class="uk-heading-xlarge uk-text-primary uk-margin-remove">
+				FoxExplorer
+			</h1>
+		</div>
+		
+		<div class="fe-wrap uk-grid-collapse uk-height-viewport" uk-grid>
+
+			<div class="fe-app-drag uk-tile-muted uk-width-auto uk-visible@s">
+				<div class="uk-padding">
+					<div class="uk-logo uk-margin-remove uk-invisible">
+						<span class="fas fa-folder uk-margin-small-right"></span>
+						FoxExplorer
+					</div>
+				</div>
+			</div>
+		
+			<div class="uk-width-1-1 uk-width-expand@s">
+				<header class="fe-app-drag uk-section uk-section-muted uk-section-xsmall" uk-sticky>
+					<ul class="fe-control fe-app-no-drag uk-iconnav uk-position-top-right uk-position-small">
+						<li><a href="#" uk-icon="minus" v-on:click="useWindowControl('minimize')"></a></li>
+						<li v-if="!bMaximized"><a href="#" uk-icon="expand" v-on:click="useWindowControl('maximize')"></a></li>
+						<li v-else><a href="#" uk-icon="shrink" v-on:click="useWindowControl('unmaximize')"></a></li>
+						<li><a href="#" uk-icon="close" class="uk-text-danger" v-on:click="useWindowControl('close')"></a></li>
+					</ul>
+
+					<div class="uk-container uk-container-xsmall uk-container-expand uk-position-relative">
+						<div class="uk-logo uk-text-primary uk-position-center-left-out uk-position-large uk-visible@s">
+							<span class="fas fa-folder uk-margin-small-right"></span>
+							FoxExplorer
+						</div>
+
+						<nav>
+							<h2 class="uk-margin-remove uk-h1">{{ oFolder.sName }}</h2>
+							<ul class="fe-app-no-drag uk-breadcrumb uk-margin-remove">
+								<li v-for="(sPath, nIndex) in oFolder.aPaths">
+									<a v-on:click="openFile('ParentDirectory', oFolder.aPaths.length - nIndex)" href="#">{{ sPath }}</a>
+								</li>
+							</ul>
+						</nav>
+					</div>
+				</header>
+		
+				<main class="uk-section uk-section-xsmall">
+					<section class="uk-container uk-container-xsmall uk-container-expand">
+						<div v-show="oAlert.bShow" v-bind:class="'uk-alert-' + oAlert.sType" uk-alert >
+							<div class="uk-flex-middle uk-grid-small" uk-grid >
+								<div class="uk-width-auto">
+									<span v-bind:uk-icon="'ratio: 2; icon: ' + oAlert.sIcon"></span>
+								</div>
+								<div class="uk-width-expand">
+									<p class="uk-margin-remove">{{ oAlert.sText }}</p>
+								</div>
+							</div>
+						</div>
+
+						<fe-file
+							v-for="oFile in aSubFiles"
+							v-bind:key="oFile.nId"
+							v-bind:o-file="oFile"
+							v-bind:o-structure-file="oStructureFile"
+							v-on:open-file="openFile"
+						></fe-file>
+					</section>
+				</main>
+			</div>
+		</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.2.0/js/uikit.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.2.0/js/uikit-icons.min.js"></script>
+		<script src="assets/js/index.js"></script>
+	</body>
+</html>
