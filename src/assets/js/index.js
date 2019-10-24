@@ -11,148 +11,142 @@ efm.initialize().then( () => {
         el: '.fe-wrap',
         
         components: {
+            'fe-alert': require('./components/fe-alert'),
             'fe-file': require('./components/fe-file')
         },
         
-        mounted: function () {
-            this.$nextTick(() => {
-                document.body.classList.remove('fe-loading');
-            });
+        mounted() {
+            this.sCurrentPath = efm.remote.app.getAppPath('home');
+        },
+        updated() {
+            this.$nextTick( () => document.body.classList.remove('fe-loading') );
         },
         
         data: {
-            sCurrentPath: efm.remote.app.getAppPath('home'),
             bMaximized: true,
-            dDateForUpdate: Date.now(),
-    
-            oAlert: {
-                bShow: false,
-                sType: '',
-                sText: '',
-                sIcon: ''
-            },
-        
+            sCurrentPath: '',
+            aSubFiles: [],
+            
             oStructureFile: {
                 aTime: [
                     { sLabel: 'Created on', sField: 'sCreated' },
                     { sLabel: 'Modify the', sField: 'sModify' }
                 ],
                 aMenu: [
-                    { sLabel: 'Open', sIcon: 'album', sTextColor: 'primary', click: (oFile) => oVue._fileEvent_open(oFile) },
+                    { sLabel: 'Open', sIcon: 'album', sTextColor: 'primary', click: (oFile) => oVue.openFile(oFile.sType, oFile.sName) },
                     { sLabel: 'Rename', sIcon: 'pencil', click: (oFile) => oVue._fileEvent_rename(oFile) },
                     { sLabel: 'Move', sIcon: 'move', click: (oFile) => oVue._fileEvent_move(oFile) },
-                    { sLabel: 'Delete', sIcon: 'trash', sTextColor: 'danger', click: (oFile) => oVue._fileEvent_delete(oFile) }
+                    { sLabel: 'Delete', sIcon: 'trash', sTextColor: 'danger', click: (oFile) => oVue._deleteFile(oFile) }
                 ]
             }
         },
     
         computed: {
             
-            oFolder: function() {
+            oFolder() {
                 return {
                     sPath: this.sCurrentPath,
                     sName: path.basename(this.sCurrentPath),
                     aPaths: path.dirname(this.sCurrentPath).split(path.sep)
                 };
             },
-            
-            aSubFiles: function() {
+
+            aSortedSubFiles() {
+                this._endLoading();
+                return [...this.aSubFiles].sort( (oA, oB) => {
+                    return oA.sType == oB.sType ?
+                        oA.sName.localeCompare(oB.sName, 'fr', { numeric: true, sensitivity: 'base' } ) :
+                        oA.sType == 'Directory' ? -1 : 1;
+                } );
+            },
+        },
+
+        watch: {
+            sCurrentPath(sNewPath, sOldPath) {
                 const aSubFile = [];
-                this.dDateForUpdate; // For Force Update
-    
                 try {
+
+                    const aErr = [];
                     fs.readdirSync(this.sCurrentPath).forEach( (sFile) => {
-                        const oStat = fs.statSync( path.join(this.sCurrentPath, sFile) );
-    
-                        aSubFile.push( {
-                            nId: oStat.uid,
-                            sType: oStat.isDirectory() ? 'Directory' : 'File',
-                            sIcon: oStat.isDirectory() ? 'folder' : 'file-text',
-                            sPath: this.sCurrentPath,
-                            sName: sFile,
-                            sCreated: oStat.birthtime.toDateString() + ', ' + oStat.birthtime.toTimeString().replace(/\(.+?\)/g, ''),
-                            sModify: oStat.mtime.toDateString() + ', ' + oStat.mtime.toTimeString().replace(/\(.+?\)/g, '')
-                        } );
+                        try {
+                            const oStat = fs.statSync( path.join(this.sCurrentPath, sFile) );
+                            aSubFile.push( {
+                                nId: oStat.ino,
+                                sType: oStat.isDirectory() ? 'Directory' : 'File',
+                                sIcon: oStat.isDirectory() ? 'folder' : 'file-text',
+                                sPath: this.sCurrentPath,
+                                sName: sFile,
+                                sCreated: oStat.birthtime.toDateString() + ', ' + oStat.birthtime.toTimeString().replace(/\(.+?\)/g, ''),
+                                sModify: oStat.mtime.toDateString() + ', ' + oStat.mtime.toTimeString().replace(/\(.+?\)/g, '')
+                            } );
+                        } catch (oErr) {
+                            aErr.push( oErr.toString() );
+                        }
                     } );
                     
-                    aSubFile.length ?
-                        this._hideAlert() :
-                        this._showInformation('No files or directories found');
+                    this.$nextTick( () => {
+                        if( aErr.length ){
+                            this.$refs.oAlert.show('warning', aErr.join('<br/>'));
+                        } else {
+                            aSubFile.length ?
+                                this.$refs.oAlert.hide() :
+                                this.$refs.oAlert.show('info', 'No files or directories found');
+                        }
+                    } );
+
+                } catch (oErr) {
+                    this.$nextTick( () => this.$refs.oAlert.show('warning', oErr.toString()) );
                 }
-    
-                catch (oErr) {
-                    this._showError(oErr.toString());
-                }
-    
-                aSubFile.sort( (oA, oB) => {
-                    if( oA.sType == oB.sType ){
-                        return oA.sName.localeCompare(oB.sName, 'fr', { numeric: true, sensitivity: 'base' } );
-                    }
-                    return oA.sType == 'Directory' ? -1 : 1;
-                } );
                 
-                this.$nextTick(() => document.body.classList.remove('fe-waiting'));
-                return aSubFile;
+                this.aSubFiles = aSubFile;
             }
         },
         
         methods: {
+
+            // Loading
+            _startLoading(fCallback) {
+                document.body.classList.add('fe-waiting');
+                setTimeout( fCallback, 10 );
+            },
+
+            _endLoading() {
+                this.$nextTick( () => document.body.classList.remove('fe-waiting') );
+            },
     
             // Control
-            useWindowControl: function(sAction){
+            useWindowControl(sAction) {
                 efm.windows.main[sAction]();
                 if( sAction == 'maximize' || sAction == 'unmaximize' ){
                     this.bMaximized = efm.windows.main.isMaximized();
                 }
             },
     
-            // Alert
-            _showError: function(sText){
-                this.oAlert = { bShow: true, sIcon: 'warning', sType: 'danger', sText: sText };
-            },
-    
-            _showInformation: function(sText){
-                this.oAlert = { bShow: true, sIcon: 'info', sType: 'primary', sText: sText };
-            },
-    
-            _hideAlert: function(){
-                this.oAlert = { bShow: false, sType: '', sText: '', sIcon: '' };
-            },
-    
             // File Event
-            _fileEvent_open: function(oFile){
-                this.openFile(oFile.sType, oFile.sName);
-            },
-    
-            _fileEvent_rename: function(oFile){
+            _fileEvent_rename(oFile) {
                 this.openFile(oFile.sType, oFile.sName);
             },
             
-            _fileEvent_move: function(oFile){
+            _fileEvent_move(oFile) {
                 this.openFile(oFile.sType, oFile.sName);
-            },
-            
-            _fileEvent_delete: function(oFile){
-                this._deleteFile(path.join(oFile.sPath, oFile.sName));
             },
     
             // Open File
-            openFile: function(sType, sSufPath){
+            openFile(sType, sSufPath) {
                 return this['_open' + sType](sSufPath);
             },
             
-            _openDirectory: function(sSufPath){
-                document.body.classList.add('fe-waiting');
-                setTimeout( () => this.sCurrentPath = path.join(this.oFolder.sPath, sSufPath), 10);
+            _openDirectory(sSufPath) {
+                this._startLoading( () => this.sCurrentPath = path.join(this.oFolder.sPath, sSufPath) );
             },
             
-            _openParentDirectory: function(nParent){
+            _openParentDirectory(nParent) {
                 let aSufPath = [];
                 aSufPath.length = nParent;
                 this._openDirectory(aSufPath.fill('..').join(path.sep));
             },
             
-            _openFile: function(sSufPath){
+            _openFile(sSufPath) {
                 efm.shell.openItem( path.join(this.oFolder.sPath, sSufPath) );
             },
     
@@ -161,10 +155,11 @@ efm.initialize().then( () => {
             // Move File
     
             // Delete File
-            _deleteFile: function(sPath){
-                document.body.classList.add('fe-waiting');
-                efm.shell.moveItemToTrash(sPath);
-                setTimeout( () => this.dDateForUpdate = Date.now(), 10);
+            _deleteFile(oFile) {
+                this._startLoading( () => {
+                    efm.shell.moveItemToTrash(path.join(oFile.sPath, oFile.sName));
+                    this.aSubFiles.splice( this.aSubFiles.indexOf(oFile), 1 );
+                } );
             }
         }
     } );

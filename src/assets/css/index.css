@@ -6,10 +6,6 @@
     -webkit-app-region: no-drag;
 }
 
-.fe-control {
-    z-index: 500;
-}
-
 .fe-loader {
     transition: opacity 1s ease, z-index 1.5s ease;
     z-index: -500;
@@ -21,7 +17,15 @@
     opacity: 1;
 }
 
-.fe-wrap header::before {
+.fe-navbar .uk-navbar-item {
+    min-height: auto;
+}
+
+.fe-content > :first-child {
+    min-width: 45px;
+}
+
+.fe-content header::before {
   content: '';
   position: absolute;
   display: block;
@@ -35,7 +39,7 @@
   transition: transform 1s ease;
 }
 
-.fe-waiting .fe-wrap header::before {
+.fe-waiting .fe-content header::before {
   transform-origin: bottom left;
   transform: scaleX(1);
 }

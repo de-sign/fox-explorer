@@ -14,67 +14,66 @@
 				FoxExplorer
 			</h1>
 		</div>
-		
-		<div class="fe-wrap uk-grid-collapse uk-height-viewport" uk-grid>
 
-			<div class="fe-app-drag uk-tile-muted uk-width-auto uk-visible@s">
-				<div class="uk-padding">
-					<div class="uk-logo uk-margin-remove uk-invisible">
+		<div class="fe-wrap">
+
+			<section class="fe-navbar fe-app-drag uk-navbar-container" uk-navbar uk-sticky>
+				<div class="uk-navbar-left">
+					<div class="uk-padding-small uk-text-primary">
 						<span class="fas fa-folder uk-margin-small-right"></span>
 						FoxExplorer
 					</div>
 				</div>
-			</div>
-		
-			<div class="uk-width-1-1 uk-width-expand@s">
-				<header class="fe-app-drag uk-section uk-section-muted uk-section-xsmall" uk-sticky>
-					<ul class="fe-control fe-app-no-drag uk-iconnav uk-position-top-right uk-position-small">
+				<div class="uk-navbar-right">
+					<ul class="fe-app-no-drag uk-padding-small uk-iconnav">
 						<li><a href="#" uk-icon="minus" v-on:click="useWindowControl('minimize')"></a></li>
 						<li v-if="!bMaximized"><a href="#" uk-icon="expand" v-on:click="useWindowControl('maximize')"></a></li>
 						<li v-else><a href="#" uk-icon="shrink" v-on:click="useWindowControl('unmaximize')"></a></li>
 						<li><a href="#" uk-icon="close" class="uk-text-danger" v-on:click="useWindowControl('close')"></a></li>
 					</ul>
+				</div>
 
-					<div class="uk-container uk-container-xsmall uk-container-expand uk-position-relative">
-						<div class="uk-logo uk-text-primary uk-position-center-left-out uk-position-large uk-visible@s">
-							<span class="fas fa-folder uk-margin-small-right"></span>
-							FoxExplorer
+			</section>
+			
+			<section class="fe-content uk-grid-collapse" uk-grid uk-height-viewport="offset-top: true">
+
+				<div class="fe-app-drag uk-tile-muted uk-width-auto uk-visible@s"></div>
+				<div class="uk-width-1-1 uk-width-expand@s">
+					
+					<header class="fe-app-drag uk-section uk-section-muted uk-section-xsmall uk-padding-remove-top" uk-sticky="offset: 54" >
+						<div class="uk-container uk-container-xsmall uk-container-expand">
+							<nav>
+								<h2 class="uk-margin-remove uk-h1">{{ oFolder.sName }}</h2>
+								<ul class="fe-app-no-drag uk-breadcrumb uk-margin-remove">
+									<li v-for="(sPath, nIndex) in oFolder.aPaths">
+										<a v-on:click="openFile('ParentDirectory', oFolder.aPaths.length - nIndex)" href="#">{{ sPath }}</a>
+									</li>
+								</ul>
+							</nav>
 						</div>
-
-						<nav>
-							<h2 class="uk-margin-remove uk-h1">{{ oFolder.sName }}</h2>
-							<ul class="fe-app-no-drag uk-breadcrumb uk-margin-remove">
-								<li v-for="(sPath, nIndex) in oFolder.aPaths">
-									<a v-on:click="openFile('ParentDirectory', oFolder.aPaths.length - nIndex)" href="#">{{ sPath }}</a>
-								</li>
-							</ul>
-						</nav>
-					</div>
-				</header>
-		
-				<main class="uk-section uk-section-xsmall">
-					<section class="uk-container uk-container-xsmall uk-container-expand">
-						<div v-show="oAlert.bShow" v-bind:class="'uk-alert-' + oAlert.sType" uk-alert >
-							<div class="uk-flex-middle uk-grid-small" uk-grid >
-								<div class="uk-width-auto">
-									<span v-bind:uk-icon="'ratio: 2; icon: ' + oAlert.sIcon"></span>
-								</div>
-								<div class="uk-width-expand">
-									<p class="uk-margin-remove">{{ oAlert.sText }}</p>
-								</div>
-							</div>
+					</header>
+			
+					<main class="uk-section uk-section-xsmall">
+						<div class="uk-container uk-container-xsmall uk-container-expand">
+							<fe-alert ref="oAlert"></fe-alert>
+							<transition-group
+								tag="div"
+								name="fe-file-transition"
+								enter-active-class="uk-transition-slide-left"
+								leave-active-class="uk-transition-slide-right"
+							>
+								<fe-file
+									v-for="oFile in aSortedSubFiles"
+									v-bind:key="oFile.nId"
+									v-bind:o-file="oFile"
+									v-bind:o-structure-file="oStructureFile"
+									v-on:open-file="openFile"
+								></fe-file>
+							</transition-group>
 						</div>
-
-						<fe-file
-							v-for="oFile in aSubFiles"
-							v-bind:key="oFile.nId"
-							v-bind:o-file="oFile"
-							v-bind:o-structure-file="oStructureFile"
-							v-on:open-file="openFile"
-						></fe-file>
-					</section>
-				</main>
-			</div>
+					</main>
+				</div>
+			</section>
 		</div>
 
 		<script src="https://cdn.jsdelivr.net/npm/vue"></script>

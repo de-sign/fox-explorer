@@ -1,7 +1,7 @@
 module.exports = {
     props: ['oFile', 'oStructureFile'],
     template: `
-        <article v-bnd:id="oFile.nId" uk-grid v-on:dblclick="$emit('open-file', oFile.sType, oFile.sName)" class="uk-card uk-link-toggle uk-flex-middle uk-margin-small-bottom uk-margin-remove-top">
+        <article uk-grid v-on:dblclick="$emit('open-file', oFile.sType, oFile.sName)" class="uk-card uk-link-toggle uk-flex-middle uk-margin-small-bottom uk-margin-remove-top">
             <div class="uk-card-header uk-width-auto uk-padding-remove-right">
                 <div v-bind:uk-icon="'ratio: 2; icon: ' + oFile.sIcon"></div>
             </div>
