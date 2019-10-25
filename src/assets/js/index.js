@@ -25,29 +25,17 @@ efm.initialize().then( () => {
         data: {
             bMaximized: true,
             sCurrentPath: '',
-            aSubFiles: [],
-            
-            oStructureFile: {
-                aTime: [
-                    { sLabel: 'Created on', sField: 'sCreated' },
-                    { sLabel: 'Modify the', sField: 'sModify' }
-                ],
-                aMenu: [
-                    { sLabel: 'Open', sIcon: 'album', sTextColor: 'primary', click: (oFile) => oVue.openFile(oFile.sType, oFile.sName) },
-                    { sLabel: 'Rename', sIcon: 'pencil', click: (oFile) => oVue._fileEvent_rename(oFile) },
-                    { sLabel: 'Move', sIcon: 'move', click: (oFile) => oVue._fileEvent_move(oFile) },
-                    { sLabel: 'Delete', sIcon: 'trash', sTextColor: 'danger', click: (oFile) => oVue._deleteFile(oFile) }
-                ]
-            }
+            aSubFiles: []
         },
     
         computed: {
             
-            oFolder() {
+            oCurrentDirectory() {
                 return {
                     sPath: this.sCurrentPath,
                     sName: path.basename(this.sCurrentPath),
-                    aPaths: path.dirname(this.sCurrentPath).split(path.sep)
+                    sDirectory: path.dirname(this.sCurrentPath),
+                    aDirectory: path.dirname(this.sCurrentPath).split(path.sep)
                 };
             },
 
@@ -56,7 +44,7 @@ efm.initialize().then( () => {
                 return [...this.aSubFiles].sort( (oA, oB) => {
                     return oA.sType == oB.sType ?
                         oA.sName.localeCompare(oB.sName, 'fr', { numeric: true, sensitivity: 'base' } ) :
-                        oA.sType == 'Directory' ? -1 : 1;
+                        oA.sType == 'directory' ? -1 : 1;
                 } );
             },
         },
@@ -72,10 +60,13 @@ efm.initialize().then( () => {
                             const oStat = fs.statSync( path.join(this.sCurrentPath, sFile) );
                             aSubFile.push( {
                                 nId: oStat.ino,
-                                sType: oStat.isDirectory() ? 'Directory' : 'File',
-                                sIcon: oStat.isDirectory() ? 'folder' : 'file-text',
-                                sPath: this.sCurrentPath,
+                                sDirectory: this.sCurrentPath,
                                 sName: sFile,
+                                sPath: path.join(this.sCurrentPath, sFile),
+
+                                sType: oStat.isDirectory() ? 'directory' : 'file',
+                                sIcon: oStat.isDirectory() ? 'folder' : 'file-text',
+
                                 sCreated: oStat.birthtime.toDateString() + ', ' + oStat.birthtime.toTimeString().replace(/\(.+?\)/g, ''),
                                 sModify: oStat.mtime.toDateString() + ', ' + oStat.mtime.toTimeString().replace(/\(.+?\)/g, '')
                             } );
@@ -122,42 +113,35 @@ efm.initialize().then( () => {
                 }
             },
     
-            // File Event
-            _fileEvent_rename(oFile) {
-                this.openFile(oFile.sType, oFile.sName);
-            },
-            
-            _fileEvent_move(oFile) {
-                this.openFile(oFile.sType, oFile.sName);
-            },
-    
             // Open File
-            openFile(sType, sSufPath) {
-                return this['_open' + sType](sSufPath);
+            openFile(oFile) {
+                oFile.sType == 'directory' ?
+                    this._startLoading( () => this.sCurrentPath = oFile.sPath ) :
+                    efm.shell.openItem(oFile.sPath);
             },
             
-            _openDirectory(sSufPath) {
-                this._startLoading( () => this.sCurrentPath = path.join(this.oFolder.sPath, sSufPath) );
-            },
-            
-            _openParentDirectory(nParent) {
-                let aSufPath = [];
-                aSufPath.length = nParent;
-                this._openDirectory(aSufPath.fill('..').join(path.sep));
-            },
-            
-            _openFile(sSufPath) {
-                efm.shell.openItem( path.join(this.oFolder.sPath, sSufPath) );
+            openParentDirectory(nParent) {
+                let aSufPath = [this.sCurrentPath];
+                aSufPath.length = nParent + 1;
+                this._startLoading( () => {
+                    this.sCurrentPath = path.join.apply(path, aSufPath.fill('..', 1))
+                } );
             },
     
             // Rename File
+            renameFile(oFile) {
+                console.log('TODO rename');
+            },
     
             // Move File
+            moveFile(oFile) {
+                console.log('TODO move');
+            },
     
             // Delete File
-            _deleteFile(oFile) {
+            deleteFile(oFile) {
                 this._startLoading( () => {
-                    efm.shell.moveItemToTrash(path.join(oFile.sPath, oFile.sName));
+                    efm.shell.moveItemToTrash(oFile.sPath);
                     this.aSubFiles.splice( this.aSubFiles.indexOf(oFile), 1 );
                 } );
             }

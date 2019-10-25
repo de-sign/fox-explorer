@@ -32,7 +32,6 @@
 						<li><a href="#" uk-icon="close" class="uk-text-danger" v-on:click="useWindowControl('close')"></a></li>
 					</ul>
 				</div>
-
 			</section>
 			
 			<section class="fe-content uk-grid-collapse" uk-grid uk-height-viewport="offset-top: true">
@@ -43,10 +42,10 @@
 					<header class="fe-app-drag uk-section uk-section-muted uk-section-xsmall uk-padding-remove-top" uk-sticky="offset: 54" >
 						<div class="uk-container uk-container-xsmall uk-container-expand">
 							<nav>
-								<h2 class="uk-margin-remove uk-h1">{{ oFolder.sName }}</h2>
+								<h2 class="uk-margin-remove uk-h1">{{ oCurrentDirectory.sName }}</h2>
 								<ul class="fe-app-no-drag uk-breadcrumb uk-margin-remove">
-									<li v-for="(sPath, nIndex) in oFolder.aPaths">
-										<a v-on:click="openFile('ParentDirectory', oFolder.aPaths.length - nIndex)" href="#">{{ sPath }}</a>
+									<li v-for="(sDirectory, nIndex) in oCurrentDirectory.aDirectory">
+										<a v-on:click="openParentDirectory(oCurrentDirectory.aDirectory.length - nIndex)" href="#">{{ sDirectory }}</a>
 									</li>
 								</ul>
 							</nav>
@@ -66,8 +65,13 @@
 									v-for="oFile in aSortedSubFiles"
 									v-bind:key="oFile.nId"
 									v-bind:o-file="oFile"
-									v-bind:o-structure-file="oStructureFile"
-									v-on:open-file="openFile"
+
+									v-on="{
+										open: openFile,
+										rename: renameFile,
+										move: moveFile,
+										delete: deleteFile
+									}"
 								></fe-file>
 							</transition-group>
 						</div>

@@ -1,7 +1,29 @@
+const oStructureFile = {
+    aTime: [
+        { sLabel: 'Created on', sField: 'sCreated' },
+        { sLabel: 'Modify the', sField: 'sModify' }
+    ],
+    aMenu: [
+        { sLabel: 'Open', sIcon: 'album', sTextColor: 'primary', sClick: 'open' },
+        { sLabel: 'Rename', sIcon: 'pencil', sClick: 'rename' },
+        { sLabel: 'Move', sIcon: 'move', sClick: 'move' },
+        { sLabel: 'Delete', sIcon: 'trash', sTextColor: 'danger', sClick: 'delete' }
+    ]
+};
+
 module.exports = {
-    props: ['oFile', 'oStructureFile'],
+    props: ['oFile'],
+    data() {
+        return { oStructureFile };
+    },
+    computed: {
+        test() {
+            console.log(this, this.oStructureFile);
+            return 'OK';
+        }
+    },
     template: `
-        <article uk-grid v-on:dblclick="$emit('open-file', oFile.sType, oFile.sName)" class="uk-card uk-link-toggle uk-flex-middle uk-margin-small-bottom uk-margin-remove-top">
+        <article uk-grid v-on:dblclick="$emit('open', oFile)" class="uk-card uk-link-toggle uk-flex-middle uk-margin-small-bottom uk-margin-remove-top">
             <div class="uk-card-header uk-width-auto uk-padding-remove-right">
                 <div v-bind:uk-icon="'ratio: 2; icon: ' + oFile.sIcon"></div>
             </div>
@@ -10,7 +32,7 @@ module.exports = {
                 <div class="uk-padding-small" uk-dropdown="pos: bottom-left">
                     <ul class="uk-nav uk-nav-default">
                         <li v-for="oFileAction in oStructureFile.aMenu">
-                            <a href="#" v-bind:class="oFileAction.sTextColor ? 'uk-text-' + oFileAction.sTextColor : ''" v-on:click="oFileAction.click(oFile)">
+                            <a href="#" v-bind:class="oFileAction.sTextColor ? 'uk-text-' + oFileAction.sTextColor : ''" v-on:click="$emit(oFileAction.sClick, oFile)">
                                 <span class="uk-margin-small-right" v-bind:uk-icon="oFileAction.sIcon"></span>
                                 <span class="uk-text-middle">{{ oFileAction.sLabel }}</span>
                             </a>
