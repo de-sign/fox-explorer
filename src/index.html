@@ -25,12 +25,7 @@
 					</div>
 				</div>
 				<div class="uk-navbar-right">
-					<ul class="fe-app-no-drag uk-padding-small uk-iconnav">
-						<li><a href="#" uk-icon="minus" v-on:click="useWindowControl('minimize')"></a></li>
-						<li v-if="!bMaximized"><a href="#" uk-icon="expand" v-on:click="useWindowControl('maximize')"></a></li>
-						<li v-else><a href="#" uk-icon="shrink" v-on:click="useWindowControl('unmaximize')"></a></li>
-						<li><a href="#" uk-icon="close" class="uk-text-danger" v-on:click="useWindowControl('close')"></a></li>
-					</ul>
+					<control></control>
 				</div>
 			</section>
 			
@@ -55,25 +50,18 @@
 					<main class="uk-section uk-section-xsmall">
 						<div class="uk-container uk-container-xsmall uk-container-expand">
 							<fe-alert ref="oAlert"></fe-alert>
-							<transition-group
-								tag="div"
-								name="fe-file-transition"
-								enter-active-class="uk-transition-slide-left"
-								leave-active-class="uk-transition-slide-right"
-							>
-								<fe-file
-									v-for="oFile in aSortedSubFiles"
-									v-bind:key="oFile.nId"
-									v-bind:o-file="oFile"
+							<list-item
+								v-for="oFile in aSortedSubFiles"
+								v-bind:key="oFile.nId"
+								v-bind:o-file="oFile"
 
-									v-on="{
-										open: openFile,
-										rename: renameFile,
-										move: moveFile,
-										delete: deleteFile
-									}"
-								></fe-file>
-							</transition-group>
+								v-on="{
+									open: openFile,
+									rename: renameFile,
+									move: moveFile,
+									delete: deleteFile
+								}"
+							></list-item>
 						</div>
 					</main>
 				</div>

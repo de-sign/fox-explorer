@@ -11,8 +11,9 @@ efm.initialize().then( () => {
         el: '.fe-wrap',
         
         components: {
+            'control': require('./components/Control'),
             'fe-alert': require('./components/fe-alert'),
-            'fe-file': require('./components/fe-file')
+            'list-item': require('./components/ListItem')
         },
         
         mounted() {
@@ -23,7 +24,6 @@ efm.initialize().then( () => {
         },
         
         data: {
-            bMaximized: true,
             sCurrentPath: '',
             aSubFiles: []
         },
@@ -103,14 +103,6 @@ efm.initialize().then( () => {
 
             _endLoading() {
                 this.$nextTick( () => document.body.classList.remove('fe-waiting') );
-            },
-    
-            // Control
-            useWindowControl(sAction) {
-                efm.windows.main[sAction]();
-                if( sAction == 'maximize' || sAction == 'unmaximize' ){
-                    this.bMaximized = efm.windows.main.isMaximized();
-                }
             },
     
             // Open File
