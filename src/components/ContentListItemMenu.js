@@ -9,6 +9,7 @@ module.exports = {
             ]
         }
     },
+    
     template: `
         <div>
             <div uk-icon="more-vertical"></div>

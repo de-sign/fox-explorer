@@ -11,12 +11,18 @@ efm.initialize().then( () => {
         el: '.fe-wrap',
         
         components: {
-            'control': require('./components/Control'),
-            'fe-alert': require('./components/fe-alert'),
-            'list-item': require('./components/ListItem')
+            'window-control': require('./components/WindowControl'),
+            'current-directory-nav': require('./components/CurrentDirectoryNav'),
+            'alert-list': require('./components/AlertList'),
+            'content-list': require('./components/ContentList')
         },
         
         mounted() {
+            this.$on(['content-list-item-open', 'current-directory-nav-open'], oItem => this.openItem(oItem) );
+            this.$on('content-list-item-rename', oItem => this.renameItem(oItem) );
+            this.$on('content-list-item-move', oItem => this.moveItem(oItem) );
+            this.$on('content-list-delete', oItem => this.deleteItem(oItem) );
+            
             this.sCurrentPath = efm.remote.app.getAppPath('home');
         },
         updated() {
@@ -24,118 +30,31 @@ efm.initialize().then( () => {
         },
         
         data: {
-            sCurrentPath: '',
-            aSubFiles: []
-        },
-    
-        computed: {
-            
-            oCurrentDirectory() {
-                return {
-                    sPath: this.sCurrentPath,
-                    sName: path.basename(this.sCurrentPath),
-                    sDirectory: path.dirname(this.sCurrentPath),
-                    aDirectory: path.dirname(this.sCurrentPath).split(path.sep)
-                };
-            },
-
-            aSortedSubFiles() {
-                this._endLoading();
-                return [...this.aSubFiles].sort( (oA, oB) => {
-                    return oA.sType == oB.sType ?
-                        oA.sName.localeCompare(oB.sName, 'fr', { numeric: true, sensitivity: 'base' } ) :
-                        oA.sType == 'directory' ? -1 : 1;
-                } );
-            },
-        },
-
-        watch: {
-            sCurrentPath(sNewPath, sOldPath) {
-                const aSubFile = [];
-                try {
-
-                    const aErr = [];
-                    fs.readdirSync(this.sCurrentPath).forEach( (sFile) => {
-                        try {
-                            const oStat = fs.statSync( path.join(this.sCurrentPath, sFile) );
-                            aSubFile.push( {
-                                nId: oStat.ino,
-                                sDirectory: this.sCurrentPath,
-                                sName: sFile,
-                                sPath: path.join(this.sCurrentPath, sFile),
-
-                                sType: oStat.isDirectory() ? 'directory' : 'file',
-                                sIcon: oStat.isDirectory() ? 'folder' : 'file-text',
-
-                                sCreated: oStat.birthtime.toDateString() + ', ' + oStat.birthtime.toTimeString().replace(/\(.+?\)/g, ''),
-                                sModify: oStat.mtime.toDateString() + ', ' + oStat.mtime.toTimeString().replace(/\(.+?\)/g, '')
-                            } );
-                        } catch (oErr) {
-                            aErr.push( oErr.toString() );
-                        }
-                    } );
-                    
-                    this.$nextTick( () => {
-                        if( aErr.length ){
-                            this.$refs.oAlert.show('warning', aErr.join('<br/>'));
-                        } else {
-                            aSubFile.length ?
-                                this.$refs.oAlert.hide() :
-                                this.$refs.oAlert.show('info', 'No files or directories found');
-                        }
-                    } );
-
-                } catch (oErr) {
-                    this.$nextTick( () => this.$refs.oAlert.show('warning', oErr.toString()) );
-                }
-                
-                this.aSubFiles = aSubFile;
-            }
+            sCurrentPath: ''
         },
         
         methods: {
-
-            // Loading
-            _startLoading(fCallback) {
-                document.body.classList.add('fe-waiting');
-                setTimeout( fCallback, 10 );
-            },
-
-            _endLoading() {
-                this.$nextTick( () => document.body.classList.remove('fe-waiting') );
+    
+            // Open Item
+            openItem(oItem) {
+                oItem.sType == 'directory' ?
+                    this.sCurrentPath = oItem.sPath :
+                    efm.shell.openItem(oItem.sPath);
             },
     
-            // Open File
-            openFile(oFile) {
-                oFile.sType == 'directory' ?
-                    this._startLoading( () => this.sCurrentPath = oFile.sPath ) :
-                    efm.shell.openItem(oFile.sPath);
-            },
-            
-            openParentDirectory(nParent) {
-                let aSufPath = [this.sCurrentPath];
-                aSufPath.length = nParent + 1;
-                this._startLoading( () => {
-                    this.sCurrentPath = path.join.apply(path, aSufPath.fill('..', 1))
-                } );
-            },
-    
-            // Rename File
-            renameFile(oFile) {
+            // Rename Item
+            renameItem(oItem) {
                 console.log('TODO rename');
             },
     
-            // Move File
-            moveFile(oFile) {
+            // Move Item
+            moveItem(oItem) {
                 console.log('TODO move');
             },
     
-            // Delete File
-            deleteFile(oFile) {
-                this._startLoading( () => {
-                    efm.shell.moveItemToTrash(oFile.sPath);
-                    this.aSubFiles.splice( this.aSubFiles.indexOf(oFile), 1 );
-                } );
+            // Delete Item
+            deleteItem(oItem) {
+                efm.shell.moveItemToTrash(oItem.sPath);
             }
         }
     } );

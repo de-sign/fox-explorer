@@ -7,6 +7,7 @@
 		<link href="assets/css/index.css" rel="stylesheet">
 		<script src="https://kit.fontawesome.com/c4c899c4b5.js"></script>
 	</head>
+	
 	<body class="fe-loading">
 
 		<div class="fe-loader uk-position-cover uk-background-muted uk-flex uk-flex-center uk-flex-middle">
@@ -25,7 +26,7 @@
 					</div>
 				</div>
 				<div class="uk-navbar-right">
-					<control></control>
+					<window-control></window-control>
 				</div>
 			</section>
 			
@@ -36,32 +37,18 @@
 					
 					<header class="fe-app-drag uk-section uk-section-muted uk-section-xsmall uk-padding-remove-top" uk-sticky="offset: 54" >
 						<div class="uk-container uk-container-xsmall uk-container-expand">
-							<nav>
-								<h2 class="uk-margin-remove uk-h1">{{ oCurrentDirectory.sName }}</h2>
-								<ul class="fe-app-no-drag uk-breadcrumb uk-margin-remove">
-									<li v-for="(sDirectory, nIndex) in oCurrentDirectory.aDirectory">
-										<a v-on:click="openParentDirectory(oCurrentDirectory.aDirectory.length - nIndex)" href="#">{{ sDirectory }}</a>
-									</li>
-								</ul>
-							</nav>
+							<current-directory-nav
+								:s-path="sCurrentPath"
+							></current-directory-nav>
 						</div>
 					</header>
 			
 					<main class="uk-section uk-section-xsmall">
 						<div class="uk-container uk-container-xsmall uk-container-expand">
-							<fe-alert ref="oAlert"></fe-alert>
-							<list-item
-								v-for="oFile in aSortedSubFiles"
-								v-bind:key="oFile.nId"
-								v-bind:o-file="oFile"
-
-								v-on="{
-									open: openFile,
-									rename: renameFile,
-									move: moveFile,
-									delete: deleteFile
-								}"
-							></list-item>
+							<alert-list></alert-list>
+							<content-list
+								:s-path="sCurrentPath"
+							></content-list>
 						</div>
 					</main>
 				</div>
