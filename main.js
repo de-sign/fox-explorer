@@ -5,7 +5,7 @@ efm.initialize( {
     oWindowOptions: {
         width: 800,
         height: 600,
-        minWidth: 320,
+        minWidth: 400,
         center: true,
         frame: false,
         show: false,

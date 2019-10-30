@@ -17,11 +17,36 @@
     opacity: 1;
 }
 
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+.uk-flex.uk-flex-column {
+    height: 100%;
+    overflow: hidden;
+}
+
+.uk-flex.uk-flex-column > :first-child {
+    flex: 0 0 auto;
+}
+
+.uk-flex.uk-flex-column > :last-child {
+    flex: 1 1 100%;
+    overflow: hidden;
+}
+
 .fe-navbar .uk-navbar-item {
     min-height: auto;
 }
 
-.fe-content > :first-child {
+.fe-content > *,
+.fe-content > * > *{
+    height: 100%;
+    overflow: hidden;
+}
+
+.fe-content nav {
     min-width: 45px;
 }
 
@@ -53,6 +78,24 @@
     margin: 0 5px;
 }
 
+.fe-scroll {
+    overflow: auto !important;
+}
+
 .uk-card {
 	cursor: pointer;
+}
+
+.uk-card-body h3 > input{
+    border: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    z-index: -1;
+    position: relative;
+    color: inherit;
+}
+
+.uk-card-body h3 > input:focus{
+    position: static;
 }

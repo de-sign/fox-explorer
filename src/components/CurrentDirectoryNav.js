@@ -17,10 +17,7 @@ module.exports = {
         open(nParent) {
             let aSufPath = [this.sPath];
             aSufPath.length = this.aDirectory.length - nParent + 1;
-            this.$root.$emit('current-directory-nav-open', {
-                sType: 'directory',
-                sPath: path.join.apply(path, aSufPath.fill('..', 1))
-            } );
+            this.$root.$emit('current-directory-nav-open', path.join.apply(path, aSufPath.fill('..', 1)) );
         }
     },
     

@@ -11,14 +11,12 @@
 	<body class="fe-loading">
 
 		<div class="fe-loader uk-position-cover uk-background-muted uk-flex uk-flex-center uk-flex-middle">
-			<h1 class="uk-heading-xlarge uk-text-primary uk-margin-remove">
-				FoxExplorer
-			</h1>
+			<h1 class="uk-heading-xlarge uk-text-primary uk-margin-remove">FoxExplorer</h1>
 		</div>
 
-		<div class="fe-wrap">
+		<div class="fe-wrap uk-flex uk-flex-column">
 
-			<section class="fe-navbar fe-app-drag uk-navbar-container" uk-navbar uk-sticky>
+			<section class="fe-navbar fe-app-drag uk-navbar-container" uk-navbar>
 				<div class="uk-navbar-left">
 					<div class="uk-padding-small uk-text-primary">
 						<span class="fas fa-folder uk-margin-small-right"></span>
@@ -30,27 +28,26 @@
 				</div>
 			</section>
 			
-			<section class="fe-content uk-grid-collapse" uk-grid uk-height-viewport="offset-top: true">
-
-				<div class="fe-app-drag uk-tile-muted uk-width-auto uk-visible@s"></div>
-				<div class="uk-width-1-1 uk-width-expand@s">
-					
-					<header class="fe-app-drag uk-section uk-section-muted uk-section-xsmall uk-padding-remove-top" uk-sticky="offset: 54" >
-						<div class="uk-container uk-container-xsmall uk-container-expand">
-							<current-directory-nav
-								:s-path="sCurrentPath"
-							></current-directory-nav>
+			<section class="fe-content">
+				<div class="uk-grid-collapse" uk-grid>
+					<nav class="uk-tile-muted uk-padding-small uk-width-auto">
+						<content-menu></content-menu>
+					</nav>
+					<div class="uk-width-expand">
+						<div class="uk-flex uk-flex-column">
+							<header class="uk-section uk-section-xsmall">
+								<div class="uk-container uk-container-xsmall uk-container-expand">
+									<current-directory-nav :s-path="sCurrentPath" ></current-directory-nav>
+								</div>
+							</header>
+							<main class="fe-scroll uk-section uk-section-xsmall">
+								<div class="uk-container uk-container-xsmall uk-container-expand">
+									<alert-list></alert-list>
+									<content-list :s-path="sCurrentPath" ></content-list>
+								</div>
+							</main>
 						</div>
-					</header>
-			
-					<main class="uk-section uk-section-xsmall">
-						<div class="uk-container uk-container-xsmall uk-container-expand">
-							<alert-list></alert-list>
-							<content-list
-								:s-path="sCurrentPath"
-							></content-list>
-						</div>
-					</main>
+					</div>
 				</div>
 			</section>
 		</div>

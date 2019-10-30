@@ -11,8 +11,8 @@ module.exports = {
     },
     
     template: `
-        <div>
-            <div uk-icon="more-vertical"></div>
+        <div class="uk-margin-small-left uk-margin-small-right">
+            <div class="uk-display-block" uk-icon="more-vertical"></div>
             <div class="uk-padding-small" uk-dropdown="pos: bottom-left">
                 <ul class="uk-nav uk-nav-default">
                     <li v-for="oAction in aAction">
